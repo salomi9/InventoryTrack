@@ -3,3 +3,4 @@
 package-lock.json
 /build
 /backend/node_modules
+/backend/build
