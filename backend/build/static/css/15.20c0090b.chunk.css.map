@@ -1,0 +1,1 @@
+{"version":3,"sources":["form.css"],"names":[],"mappings":"AACA,0CACI,WAAW,CACX,SACH","file":"15.20c0090b.chunk.css","sourcesContent":["\n.form-group.required .control-label:after { \n    content:\"*\";\n    color:red;\n }"]}
