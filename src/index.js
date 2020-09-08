@@ -26,13 +26,40 @@ import "assets/scss/argon-dashboard-react.scss";
 import AdminLayout from "layouts/Admin.js";
 import AuthLayout from "layouts/Auth.js";
 
+import { positions, Provider as Alert } from "react-alert";
+import AlertTemplate from "react-alert-template-mui";
+
+
+import { Provider } from 'react-redux'
+import store from './store';
+import { persistStore, persistReducer } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
+
+
+const options = {
+  timeout: 5000,
+  position: positions.BOTTOM_TOP,
+  containerStyle: {
+    zIndex: 100,
+    // backgroundColor: "red"
+  },
+  background: 'red'
+}
+
+let persistor = persistStore(store)
+
 ReactDOM.render(
-  <BrowserRouter>
-    <Switch>
-      <Route path="/admin" render={props => <AdminLayout {...props} />} />
-      <Route path="/auth" render={props => <AuthLayout {...props} />} />
-      {/* <Redirect from="/" to="/admin/index" /> */}
-    </Switch>
-  </BrowserRouter>,
+  <Alert template={AlertTemplate} {...options}>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/admin" render={props => <AdminLayout {...props} />} />
+          <Route path="/auth" render={props => <AuthLayout {...props} />} />
+          {/* <Redirect from="/" to="/admin/index" /> */}
+        </Switch>
+      </BrowserRouter>
+    </Provider>
+  </Alert>
+  ,
   document.getElementById("root")
 );

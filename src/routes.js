@@ -15,6 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import Login from "./views/examples/Login";
 import SalesOrder from "dashboard/SalesOrderDashboard/SalesOrderDashboard";
 import Brands from "dashboard/Brands/Brands";
 import Outlets from "dashboard/Outlets/Outlet";
@@ -81,11 +82,11 @@ var routes = [
     layout: "/admin"
   },
   {
-    path: "/salesOrderForm",
-    name: "Sales Order Add/Edit Form",
+    path: "/login",
+    name: "Login",
     icon: "ni ni-single-02 text-primary",
-    component: SalesOrderForm,
-    layout: "/admin"
+    component: Login,
+    layout: "/auth"
   },
 ];
 export default routes;

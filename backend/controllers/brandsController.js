@@ -43,6 +43,7 @@ function sendValidator(req, res) {
 
 function addBrand(req, res) {
     try {
+        console.log("Inside Add BRand")
         sendValidator(req, res)
         const newBrand = {
             brandName: req.body.brandName,

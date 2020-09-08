@@ -14,8 +14,8 @@ const handlebars = require('handlebars')
 
 const crypto = require('crypto')
 
-const spr = ['/ticket/editTicket','/ticket/fetchTicketData','/loginManagement/forgotPassword',
-                          '/loginManagement/createPassword','/loginManagement/changePassword']
+const spr = ['/ticket/editTicket', '/ticket/fetchTicketData', '/loginManagement/forgotPassword',
+    '/loginManagement/createPassword', '/loginManagement/changePassword']
 
 
 
@@ -81,7 +81,7 @@ module.exports = {
     authenticate: function (req, res, next) {
 
         console.log("we are inside authenticate function", req.session)
-       return next()   //when in developer mode
+        return next()   //when in developer mode
 
         // When in deployment mode
         if (req.session["uid"] == (undefined || null)) {
@@ -90,27 +90,27 @@ module.exports = {
             })
         }
         try {
-          
-                        userSchema.find({ "_id": req.session["uid"] }, {
-                            "active": 1
-                        })
-                            .then(data => {
-                                console.log("the data of user", data[0].active)
-                                if (data[0].active) {
-                                    next()
-                                
-                                }
-                                else {
-                                    return res.status(401).send({
-                                        "message": "User is not active",
 
-                                    })
-                                }
-                            })
-                 
+            userSchema.find({ "_id": req.session["uid"] }, {
+                "active": 1
+            })
+                .then(data => {
+                    console.log("the data of user", data[0].active)
+                    if (data[0].active) {
+                        next()
+
+                    }
+                    else {
+                        return res.status(401).send({
+                            "message": "User is not active",
+
+                        })
+                    }
+                })
+
         }
         catch (err) {
-            
+
             console.log("authenticate", err)
             return res.status(401).send({
                 "message": "Authentication Error"
@@ -132,7 +132,7 @@ module.exports = {
                     userSchema.find({ "_id": req.session["uid"] }, {
                         "userType": 1
                     }).then(data => {
-                        console.log("dat in authorize is",data)
+                        console.log("dat in authorize is", data)
                         data[0].userType = USER_TYPES_I2S[data[0].userType]
                         console.log("the data inside the authorize is", data, data[0]["userType"]
                             , teamManager.includes(apiName));
@@ -175,41 +175,26 @@ module.exports = {
                 cipher.update(pwd, 'utf8', 'hex')
                 const encryPassword = cipher.final('hex')
                 console.log("encrypted pass", encryPassword)
-                userSchema.find({ "email": name, "password": encryPassword }, {
-                    "active": 1,
-                })
+                userSchema.find({ "email": name, "password": encryPassword }, {})
                     .then(data => {
                         console.log("data of first query is", data)
                         if (data[0] != (undefined || null)) {
-                            if (data[0].active) {
-                                userSchema.find({ "email": name, "password": encryPassword },
-                                    { "_id": 1, "userType": 1, "name": 1, "email": 1, "active": 1, "BUID": 1 }).sort({ "name": 1 })
-                                    .then(data => {
-                                        console.log("inside if of second query", data)
-                                        if (data != null && data.length == 1) {
-                                            var hour = 24 * 60 * 60 * 1000;
-                                            req.session.uid = data[0]._id;
-                                            // req.session.BUID = data[0].BUID;
-                                            req.session.cookie.expires = new Date(Date.now() + hour);
-                                            req.session.cookie.maxAge = hour;
-                                            req.session.userType = USER_TYPES_I2S[data[0].userType];
-                                            data[0].userType = USER_TYPES_I2S[data[0].userType]
-                                            res.status(200).send({ "message": "Success",
-                                            "userDetails": data,
-                                            "session": req.session})
-                                        }
-                                        else {
-                                            res.status(400).send({ "message": "Invalid User Details" })
-                                        }
-                                    })
-                                    .catch(err => {
-                                        res.status(400).send({ "message": "Invalid User Details" })
-                                    })
+                            if (data != null && data.length == 1) {
+                                var hour = 24 * 60 * 60 * 1000;
+                                req.session.uid = data[0]._id;
+                                // req.session.BUID = data[0].BUID;
+                                req.session.cookie.expires = new Date(Date.now() + hour);
+                                req.session.cookie.maxAge = hour;
+                                req.session.userType = USER_TYPES_I2S[data[0].userType];
+                                data[0].userType = USER_TYPES_I2S[data[0].userType]
+                                res.status(200).send({
+                                    "message": "Success",
+                                    "userDetails": data,
+                                    "session": req.session
+                                })
                             }
                             else {
-                                return res.status(401).send({
-                                    "message": "User is not active",
-                                })
+                                res.status(400).send({ "message": "Invalid User Details" })
                             }
                         }
                         else {
@@ -296,7 +281,7 @@ module.exports = {
                                 const htmlToSend = template(replacements);
                                 console.log("The token value obtained is ", userFound.email, resetLink)
                                 const mailOptions = {
-                                   // from: 'indrapathak28@outlook.com',
+                                    // from: 'indrapathak28@outlook.com',
                                     from: 'noreply.optimizedsolutions@gmail.com',
                                     to: userFound.email,
                                     subject: 'SCMS - Reset password instructions',
@@ -380,7 +365,7 @@ module.exports = {
                 userSchema.find({ "reset.token": token }, { "reset.used": 1 })
                     .then(data => {
                         console.log("the data in first query is ", data)
-                        if (data[0] != undefined &&  data[0].reset != undefined &&!data[0].reset.used ) {
+                        if (data[0] != undefined && data[0].reset != undefined && !data[0].reset.used) {
                             console.log("inside if of first query")
                             userSchema.updateOne({ "reset.token": token }, {
                                 "$set":
@@ -418,108 +403,107 @@ module.exports = {
     changePassword: function (req, res) {
 
         console.log("we are inside change password function", req.body.userId)
-        try{
-        // //console.log(req.session)
-        const userId = req.body.userId;
-        // const userId = req.session._id ? req.session._id : req.body.userId
-        console.log("userId", userId)
-        if (typeof (userId) !== "string") {
-            return res.status(403).send({
-                "message": "Session Expired"
-            })
-        }
+        try {
+            // //console.log(req.session)
+            const userId = req.body.userId;
+            // const userId = req.session._id ? req.session._id : req.body.userId
+            console.log("userId", userId)
+            if (typeof (userId) !== "string") {
+                return res.status(403).send({
+                    "message": "Session Expired"
+                })
+            }
 
-        if (req.body.oldPassword != (null || undefined) && typeof req.body.oldPassword === "string"
-            && req.body.newPassword1 != (null || undefined) && typeof req.body.newPassword1 === "string"
-            && req.body.newPassword2 != (null || undefined) && typeof req.body.newPassword2 === "string") {
+            if (req.body.oldPassword != (null || undefined) && typeof req.body.oldPassword === "string"
+                && req.body.newPassword1 != (null || undefined) && typeof req.body.newPassword1 === "string"
+                && req.body.newPassword2 != (null || undefined) && typeof req.body.newPassword2 === "string") {
 
-            const {
-                oldPassword,
-                newPassword1,
-                newPassword2
-            } = req.body
-            if (newPassword1 !== newPassword2) {
-                console.log("inside new password comparision")
-                return res.status(400).send({
-                    "message": "Password does not match"
-                })
-            }
-            if (newPassword1.length < 8 || newPassword1.length > 20) {
-                console.log("inside password length comparisoin if")
-                return res.status(400).send({
-                    "message": "Password character length must be greater than 8 and less than 20"
-                })
-            }
-            if (!validatePassword(newPassword1)) {
-                console.log("inside valide password if");
-                return res.status(400).send({
-                    "message": "Password must contain Alphanumeric and Special Characters"
-                })
-            }
-            if (newPassword1 === oldPassword) {
-                return res.status(400).send({
-                    "message": "Please create new password"
-                })
-            }
-            userSchema.findOne({
-                "_id": userId
-            }, {
-                "password": 1,
-                "email": 1
-            })
-                .then(userFound => {
-                    console.log("The user that is found in change Password", userFound, req.body.oldPassword)
-                    userFound.comparePassword(req.body.oldPassword, userFound, (match) => {
-                        if (match) {
-                            console.log("Inside match if")
-                            const newEncrypted = userFound.createHash(newPassword1)
-                            console.log("the encrypted password is ", newEncrypted);
-                            userSchema.update({
-                                "_id": Object(userId)
-                            }, {
-                                "$set": {
-                                    "password": newEncrypted
-                                }
-                            })
-                                .then(success => {
-                                    return res.status(200).send({
-                                        "message": "Password updated successfully",
-                                        success
-                                    })
-                                })
-                                .catch(error => {
-                                    return res.status(400).send({
-                                        "message": "Internal Server Error",
-                                        error
-                                    })
-                                })
-                        } else {
-                            return res.status(400).send({
-                                "message": "Wrong password"
-                            })
-                        }
-                    })
-                })
-                .catch(err => {
-                    console.error(err)
+                const {
+                    oldPassword,
+                    newPassword1,
+                    newPassword2
+                } = req.body
+                if (newPassword1 !== newPassword2) {
+                    console.log("inside new password comparision")
                     return res.status(400).send({
-                        "message": "Internal Server Error"
+                        "message": "Password does not match"
                     })
+                }
+                if (newPassword1.length < 8 || newPassword1.length > 20) {
+                    console.log("inside password length comparisoin if")
+                    return res.status(400).send({
+                        "message": "Password character length must be greater than 8 and less than 20"
+                    })
+                }
+                if (!validatePassword(newPassword1)) {
+                    console.log("inside valide password if");
+                    return res.status(400).send({
+                        "message": "Password must contain Alphanumeric and Special Characters"
+                    })
+                }
+                if (newPassword1 === oldPassword) {
+                    return res.status(400).send({
+                        "message": "Please create new password"
+                    })
+                }
+                userSchema.findOne({
+                    "_id": userId
+                }, {
+                    "password": 1,
+                    "email": 1
                 })
+                    .then(userFound => {
+                        console.log("The user that is found in change Password", userFound, req.body.oldPassword)
+                        userFound.comparePassword(req.body.oldPassword, userFound, (match) => {
+                            if (match) {
+                                console.log("Inside match if")
+                                const newEncrypted = userFound.createHash(newPassword1)
+                                console.log("the encrypted password is ", newEncrypted);
+                                userSchema.update({
+                                    "_id": Object(userId)
+                                }, {
+                                    "$set": {
+                                        "password": newEncrypted
+                                    }
+                                })
+                                    .then(success => {
+                                        return res.status(200).send({
+                                            "message": "Password updated successfully",
+                                            success
+                                        })
+                                    })
+                                    .catch(error => {
+                                        return res.status(400).send({
+                                            "message": "Internal Server Error",
+                                            error
+                                        })
+                                    })
+                            } else {
+                                return res.status(400).send({
+                                    "message": "Wrong password"
+                                })
+                            }
+                        })
+                    })
+                    .catch(err => {
+                        console.error(err)
+                        return res.status(400).send({
+                            "message": "Internal Server Error"
+                        })
+                    })
+            }
+            else {
+                throw "Error : OLD or new password are null or undefined in change password ";
+            }
+            //console.log(oldPassword, newPassword1, newPassword2)
+            // res.status(200).send({"message":"Password updated successfully"})
         }
-        else {
-            throw "Error : OLD or new password are null or undefined in change password ";
+        catch (e) {
+            res.status(400).send({
+                "message": "Internal Server Error",
+                "error": e
+            })
         }
-        //console.log(oldPassword, newPassword1, newPassword2)
-        // res.status(200).send({"message":"Password updated successfully"})
-    }
-    catch(e)
-    {
-         res.status(400).send({
-            "message": "Internal Server Error",
-            "error":e
-        })
-    }
     },
 
 

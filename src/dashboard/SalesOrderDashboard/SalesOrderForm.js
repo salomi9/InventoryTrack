@@ -23,6 +23,7 @@ import { fetchPostApi, fetchGetApi } from "../../constant/apiCall";
 
 let brandNames;
 let addOrders = [];
+
 class BasicForms extends React.Component {
   state = {
     id:
@@ -88,6 +89,13 @@ class BasicForms extends React.Component {
     outletInvalid: false,
 
     edit: false,
+    addOrders: [],
+
+    orders: [{
+      brand: "",
+      size: "",
+      quantity: ""
+    }]
   };
 
   componentDidMount() {
@@ -272,73 +280,95 @@ class BasicForms extends React.Component {
   };
 
   addOrder = () => {
-    addOrders.push(
-      1
-      // <div style={{border: "5px solid blue"}}>
-      //   {console.log("IN HERE")}
-      // <FormGroup row>
-      //   <Col md="3">
-      //     <Label htmlFor="text-input">
-      //       Brand Name : <span style={{ color: "red" }}>*</span>
-      //     </Label>
-      //   </Col>
-      //   <Col xs="12" md="9">
-      //     <Input
-      //       type="select"
-      //       orderNo="select"
-      //       id="exampleSelect"
-      //       onChange={(e) => this.handleBrand(e)}
-      //       value={this.state.brandName}
-      //       valid={this.state.brandNameValid}
-      //       invalid={this.state.brandNameInvalid}
-      //     >
-      //       <option value="">Please Select a Brand</option>
-      //       {brandNames}
-      //     </Input>
-      //   </Col>
-      // </FormGroup>
+   
+    this.setState({
+      addOrders : [...this.state.addOrders,
+        <div key={this.state.addOrders} style={{border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%"}}>
+         <FormGroup row>
+           <Col md="3">
+             <Label htmlFor="text-input">
+              Brand Name : <span style={{ color: "red" }}>*</span>
+            </Label>
+          </Col>
+          <Col xs="12" md="9">
+            <Input
+              type="select"
+              orderNo="select"
+              id="exampleSelect"
+              onChange={(e) => this.setState({
+                orders: [
+                  ...this.state.orders,
+                  {brand: e.target.value}
+                ]
+              })}
+              // value={this.state.brandName}
+              valid={this.state.brandNameValid}
+              invalid={this.state.brandNameInvalid}
+            >
+              <option value="">Please Select a Brand</option>
+              {brandNames}
+            </Input>
+          </Col>
+        </FormGroup>
+  
+        <FormGroup row>
+          <Col md="3">
+            <Label htmlFor="text-input">
+              Size<span style={{ color: "red" }}>*</span>
+            </Label>
+          </Col>
+          <Col xs="12" md="9">
+            <Input
+              type="number"
+              id="text-input"
+              orderNo="text-input"
+              onChange={(e) => this.setState({
+                orders: [
+                  ...this.state.orders,
+                  {size: e.target.value}
+                ]
+              })}
+              // value={this.state.size}
+              valid={this.state.sizeValid}
+              invalid={this.state.sizeInvalid}
+              placeholder="Enter Size"
+            />
+          </Col>
+        </FormGroup>
+        <FormGroup row>
+          <Col md="3">
+            <Label htmlFor="text-input">
+              Quantity<span style={{ color: "red" }}>*</span>
+            </Label>
+          </Col>
+          <Col xs="12" md="9">
+            <Input
+              type="number"
+              id="text-input"
+              orderNo="text-input"
+              onChange={(e) => this.setState({
+                orders: [
+                  ...this.state.orders,
+                  {size: e.target.value}
+                ]
+              })}
+              // value={this.state.quantity}
+              valid={this.state.quantityValid}
+              invalid={this.state.quantityInvalid}
+              placeholder="Enter Quantity"
+            />
+          </Col>
+        </FormGroup>
+        </div>
+      ]
+    },
+    () => {
+      console.log("Object of orders", this.state.orders)
+    })    
+  };
 
-      // <FormGroup row>
-      //   <Col md="3">
-      //     <Label htmlFor="text-input">
-      //       Size<span style={{ color: "red" }}>*</span>
-      //     </Label>
-      //   </Col>
-      //   <Col xs="12" md="9">
-      //     <Input
-      //       type="number"
-      //       id="text-input"
-      //       orderNo="text-input"
-      //       onChange={(e) => this.handleSize(e)}
-      //       value={this.state.size}
-      //       valid={this.state.sizeValid}
-      //       invalid={this.state.sizeInvalid}
-      //       placeholder="Enter Size"
-      //     />
-      //   </Col>
-      // </FormGroup>
-      // <FormGroup row>
-      //   <Col md="3">
-      //     <Label htmlFor="text-input">
-      //       Quantity<span style={{ color: "red" }}>*</span>
-      //     </Label>
-      //   </Col>
-      //   <Col xs="12" md="9">
-      //     <Input
-      //       type="number"
-      //       id="text-input"
-      //       orderNo="text-input"
-      //       onChange={(e) => this.handleQuantity(e)}
-      //       value={this.state.quantity}
-      //       valid={this.state.quantityValid}
-      //       invalid={this.state.quantityInvalid}
-      //       placeholder="Enter Quantity"
-      //     />
-      //   </Col>
-      // </FormGroup>
-      // </div>
-    )
-  }
+
+
   handleSubmit = () => {
     // const alert = this.props.alert;
 
@@ -520,13 +550,15 @@ class BasicForms extends React.Component {
                       </Input>
                     </Col>
                   </FormGroup>
-                  <div style={{border: "5px solid blue"}}>
+                  <div style={{border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%"}}>
                   <FormGroup row>
+                    
                     <Col md="3">
                       <Label htmlFor="text-input">
                         Brand Name : <span style={{ color: "red" }}>*</span>
                       </Label>
                     </Col>
+                    
                     <Col xs="12" md="9">
                       <Input
                         type="select"
@@ -582,8 +614,9 @@ class BasicForms extends React.Component {
                     </Col>
                   </FormGroup>
                   </div>
-                  {addOrders}
+                  {this.state.addOrders}
                   <Button onClick={this.addOrder}>Add Order</Button>
+                  
                 </Form>
               </Col>
             </CardBody>
