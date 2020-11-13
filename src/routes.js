@@ -82,6 +82,13 @@ var routes = [
     layout: "/admin"
   },
   {
+    path: "/salesOrderForm",
+    name: "SalesOrder Form",
+    icon: "ni ni-single-02 text-primary",
+    component: SalesOrderForm,
+    layout: "/admin"
+  },
+  {
     path: "/login",
     name: "Login",
     icon: "ni ni-single-02 text-primary",

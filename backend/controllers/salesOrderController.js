@@ -15,8 +15,10 @@ function salesOrderGenerator(todayDate) {
       .sort({ salesOrderNo: 1 })
       .then(function (data) {
         console.log("ODERERRER", data);
-        let lastTime = moment(data[data.length - 1].orderDate).endOf("year");
-
+        let lastTime;
+        if (data.length > 0) {
+          lastTime = moment(data[data.length - 1].orderDate).endOf("year");
+        }
         if (data.length > 0 && moment(todayDate).isBefore(lastTime)) {
           //Use limit 1 for find
 
@@ -46,20 +48,17 @@ function salesOrderGenerator(todayDate) {
 const salesOrder = {
   "Product Sales Representative": [
     "orderDate",
-    "outletId",
-    "brandId",
-    "size",
-    "quantity",
+    "outletName",
     "psrId",
   ],
   "Admin": [
-    "orderDate", 
-    "outletId", 
-    "brandId", 
-    "size", 
-    "quantity", 
+    "orderDate",
+    "outletName",
+    "brandName",
+    "size",
+    "quantity",
     "psrId"
-    
+
   ],
 };
 
@@ -67,11 +66,11 @@ module.exports = {
   // For adding the salesOrder datails by the admin
   addSalesOrder: function (req, res) {
     console.log("sesion is", req.session);
+    console.log("brandName: ", req.body.brandName);
 
     console.log(
       "we are inside add salesOrder function",
       req.body.userType,
-      TICKET_STATUS_S2I[req.body.status],
       moment().utc().add(5.5, "hours")
     );
     try {
@@ -88,19 +87,37 @@ module.exports = {
           // Check User type and set body obejct as per the user type
           let userType = req.body.userType;
           const newSalesOrder = {};
+          let size = req.body.size;
+          let quantity = req.body.quantity;
+          let brandName = req.body.brandName;
+          // let orderDetails = [];
+
           for (let value of salesOrder[userType]) {
             newSalesOrder[value] = req.body[value];
           }
-          console.log(
-            "the salesOrder no from salesOrder generator is ",
-            data,
-            salesOrderNo,
-            todayDate,
-            newSalesOrder
-          );
-          newSalesOrder.salesOrderNo = data;
-          const salesOrderEntries = new salesOrderSchema(newSalesOrder);
-          return salesOrderEntries.save();
+
+          for (let i = 0; i < req.body.brandName.length; i++) {
+            let orderDetails = {};
+
+            orderDetails["brandName"] = req.body.brandName[i],
+            orderDetails["size"] = req.body.size[i],
+            orderDetails["quantity"] = req.body.quantity[i]
+           
+            newSalesOrder.salesOrderNo = data;
+            newSalesOrder.orderFromOutlet = orderDetails;
+            const salesOrderEntries = new salesOrderSchema(newSalesOrder);
+            console.log("To be saved data: ", newSalesOrder)
+            salesOrderEntries.save();
+          }
+          console.log("brandName: ", req.body.brandName);
+          console.log("size: ", req.body.size);
+          console.log("quantity: ", req.body.quantity);
+
+          // newSalesOrder.salesOrderNo = data;
+          // newSalesOrder.orderFromOutlet = orderDetails;
+          // const salesOrderEntries = new salesOrderSchema(newSalesOrder);
+          // console.log("To be saved data: ", newSalesOrder)
+          // return salesOrderEntries.save();
         })
         .then((data) => {
           res.status(200).send({
@@ -128,6 +145,7 @@ module.exports = {
     }
   },
 
+  //Removing this functionality
   // For updating the salesOrder data by the admin
   editSalesOrder: function (req, res) {
     console.log("we are inside Edit salesOrder function");
@@ -154,14 +172,14 @@ module.exports = {
           newSalesOrder
         );
 
-          salesOrderSchema
+        salesOrderSchema
           .updateOne(
             { salesOrderNo: req.body.salesOrderNo },
-            { $set: newSalesOrder},
-       
+            { $set: newSalesOrder },
+
           )
           .then((status) => {
-            console.log("In here",status);
+            console.log("In here", status);
             if (status.n === 0) {
               res.status(200).send({ message: "Sales Order not found" });
             } else if (status.n === 1 && status.nModified == 0) {
@@ -184,7 +202,7 @@ module.exports = {
               });
             }
           });
-      
+
       } else {
         //const error =[]
 
@@ -201,6 +219,120 @@ module.exports = {
       });
     }
   },
+
+  fetchSalesOrderDatav2: function (req, res) {
+    try {
+      let outletId = [];
+      let brandId = [];
+      let psrId = [];
+      salesOrderSchema
+        .find({})
+        .then((data) => {
+          let dataValue = [{}];
+          let iterator = 0;
+          console.log("TICKETS", data);
+          data = JSON.parse(JSON.stringify(data));
+          if (data != undefined && data != null) {
+            for (let i = 0; i < data.length; i++) {
+              // outletId[i] = data[i].outletId;
+              // brandId[i] = data[i].brandId;
+              // psrId[i] = data[i].psrId;
+              // console.log("OutletId: ",outletId[i])
+
+              // console.log("psr",psrId)
+              outletSchema
+                .find(
+                  {
+                    _id: [data[i].outletId],
+                  },
+                  {
+                    name: 1,
+                  }
+                )
+                // .then((outletName) => {
+                //   console.log("outname", outletName);
+                //   //get brandName from the brand id
+                //   brandSchema
+                //     .find(
+                //       {
+                //         _id: data[i].brandId,
+                //       },
+                //       {
+                //         brandName: 1,
+                //       }
+                //     )
+                .then((outletName) => {
+                  //   console.log("brand", brandName)
+                  //appending brand name to data object
+                  userSchema
+                    .find(
+                      {
+                        _id: data[i].psrId,
+                      },
+                      {
+                        name: 1,
+                      }
+                    )
+                    .then((psrName) => {
+                      console.log("psr name", psrName);
+                      // appending psrName to data obejct
+
+                      // for (let i = 0; i < data.length; i++) {
+                      data[i].outletName = outletName[0].name;
+                      // data[i].brandName = brandName[0].brandName;
+                      data[i].psrName = psrName[0].name;
+                      iterator++;
+                      sendData(iterator);
+                      // }
+                      // console.log("Data from fetching ticket api", data);
+                    })
+                    // console.log("Mark 2", data);
+                    .catch((err) => {
+                      console.log("Catched err from finding Psr name", err);
+                      res.status(400).send({
+                        message: "Server Error In Fetch SalesOrder Data!",
+                      });
+                    });
+                })
+                .catch((err) => {
+                  console.log("Catched err from finding Brand name", err);
+                  res.status(400).send({
+                    message: "Server Error In Fetch SalesOrder Data!",
+                  });
+                });
+              // })
+              // .catch((err) => {
+              //   console.log("Catched err from finding outlet name", err);
+              //   res.status(400).send({
+              //     message: "Server Error In Fetch SalesOrder Data!",
+              //   });
+              // });
+            }
+
+            function sendData(j) {
+              if (j == data.length) {
+                res.status(200).send({
+                  "dataValue": data
+                });
+              }
+            }
+          }
+        })
+        .catch((err) => {
+          console.log("Catched err from finding tickets", err);
+          res
+            .status(400)
+            .send({ message: "Server Error In Fetch SalesOrder Data!" });
+        });
+    } catch (e) {
+      console.log("error is", e);
+      return res.status(400).send({
+        message: "Server Error In Fetch SalesOrder Data!",
+        error: e,
+      });
+    }
+  },
+
 
   fetchSalesOrderData: function (req, res) {
     try {
@@ -291,10 +423,10 @@ module.exports = {
                 });
             }
 
-            function sendData(j){
-              if( j == data.length){
+            function sendData(j) {
+              if (j == data.length) {
                 res.status(200).send({
-                "dataValue" : data
+                  "dataValue": data
                 });
               }
             }

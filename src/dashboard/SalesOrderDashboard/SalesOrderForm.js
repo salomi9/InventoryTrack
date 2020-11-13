@@ -91,11 +91,11 @@ class BasicForms extends React.Component {
     edit: false,
     addOrders: [],
 
-    orders: [{
-      brand: "",
-      size: "",
-      quantity: ""
-    }]
+
+    orderFromOutlet: [],
+    brandsOrder: [],
+    sizeOrder: [],
+    quantityOrder: []
   };
 
   componentDidMount() {
@@ -279,28 +279,47 @@ class BasicForms extends React.Component {
     }
   };
 
+  brandOrder = (e) => {
+    if (e.target.value != "" || e.target.value != null) {
+      this.setState({
+        brandsOrder: [...this.state.brandsOrder, e.target.value]
+      })
+    }
+  }
+
+  sizeOrder = (e) => {
+    if (e.target.value != "" || e.target.value != null) {
+      this.setState({
+        sizeOrder: [...this.state.sizeOrder, e.target.value]
+      })
+    }
+  }
+
+  quantityOrder = (e) => {
+    if (e.target.value != "" || e.target.value != null) {
+      this.setState({
+        quantityOrder: [...this.state.quantityOrder, e.target.value]
+      })
+    }
+  }
+
   addOrder = () => {
-   
+
     this.setState({
-      addOrders : [...this.state.addOrders,
-        <div key={this.state.addOrders} style={{border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%"}}>
-         <FormGroup row>
-           <Col md="3">
-             <Label htmlFor="text-input">
+      addOrders: [...this.state.addOrders,
+      <div key={this.state.addOrders} style={{ border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%" }}>
+        <FormGroup row>
+          <Col md="3">
+            <Label htmlFor="text-input">
               Brand Name : <span style={{ color: "red" }}>*</span>
             </Label>
           </Col>
           <Col xs="12" md="9">
             <Input
               type="select"
-              orderNo="select"
+              // orderNo="select"
               id="exampleSelect"
-              onChange={(e) => this.setState({
-                orders: [
-                  ...this.state.orders,
-                  {brand: e.target.value}
-                ]
-              })}
+              onChange={e => this.brandOrder(e)}
               // value={this.state.brandName}
               valid={this.state.brandNameValid}
               invalid={this.state.brandNameInvalid}
@@ -310,7 +329,7 @@ class BasicForms extends React.Component {
             </Input>
           </Col>
         </FormGroup>
-  
+
         <FormGroup row>
           <Col md="3">
             <Label htmlFor="text-input">
@@ -321,13 +340,8 @@ class BasicForms extends React.Component {
             <Input
               type="number"
               id="text-input"
-              orderNo="text-input"
-              onChange={(e) => this.setState({
-                orders: [
-                  ...this.state.orders,
-                  {size: e.target.value}
-                ]
-              })}
+              //  orderNo ="text-input"
+              onChange={(e) => this.sizeOrder(e)}
               // value={this.state.size}
               valid={this.state.sizeValid}
               invalid={this.state.sizeInvalid}
@@ -345,13 +359,8 @@ class BasicForms extends React.Component {
             <Input
               type="number"
               id="text-input"
-              orderNo="text-input"
-              onChange={(e) => this.setState({
-                orders: [
-                  ...this.state.orders,
-                  {size: e.target.value}
-                ]
-              })}
+              // orderNo="text-input"
+              onChange={(e) => this.quantityOrder(e)}
               // value={this.state.quantity}
               valid={this.state.quantityValid}
               invalid={this.state.quantityInvalid}
@@ -359,20 +368,32 @@ class BasicForms extends React.Component {
             />
           </Col>
         </FormGroup>
-        </div>
+      </div>
       ]
     },
-    () => {
-      console.log("Object of orders", this.state.orders)
-    })    
+      () => {
+        console.log("Object of orders", this.state.orders)
+        console.log("brands", this.state.brandsOrder)
+        console.log("size", this.state.sizeOrder)
+        console.log("quantity", this.state.quantityOrder)
+      })
   };
-
-
 
   handleSubmit = () => {
     // const alert = this.props.alert;
 
-    console.log("This dot state", this.state);
+    console.log("This dot state", this.state.brandsOrder);
+    let temp = []
+    for (let i = 0; i < this.state.brandsOrder.length; i++) {
+      temp.push({
+        "brand": this.state.brandsOrder[i],
+        "size": this.state.sizeOrder[i],
+        "quantity": this.state.quantityOrder[i]
+
+      })
+      console.log("HERE IS THE OUTPUT", temp)
+    }
+    console.log("HERE IS THE OUTPUT2", temp)
     if (
       this.state.orderDateValid &&
       this.state.psrNameValid &&
@@ -382,10 +403,10 @@ class BasicForms extends React.Component {
       this.state.quantityValid
     ) {
       let params = {};
-    //   params.salesOrderNo = this.state.orderNo;
+      //   params.salesOrderNo = this.state.orderNo;
       params.outletId = this.state.outlet;
       params.brandId = this.state.brandName;
-      params.size= this.state.size;
+      params.size = this.state.size;
       params.quantity = this.state.quantity;
       params.psrId = this.state.psrName;
       params.orderDate = this.state.orderDate;
@@ -434,9 +455,9 @@ class BasicForms extends React.Component {
   };
 
   render() {
-    console.log("addOrders",addOrders)
+    // console.log("addOrders",addOrders)
     let brand = this.state.brand;
-    console.log("reason", brand);
+    // console.log("reason", brand);
     brandNames = brand.map((res, index) => (
       <option key={res._id} value={res._id}>
         {res.brandName}
@@ -460,7 +481,7 @@ class BasicForms extends React.Component {
     return (
       <>
         <Header />
-        <Container classorderNo="mt--7" fluid>
+        <Container className="mt--7" fluid>
           <Card>
             <CardHeader>Add/Edit Sales Order Information</CardHeader>
             <CardBody>
@@ -470,7 +491,7 @@ class BasicForms extends React.Component {
                   action=""
                   method="post"
                   encType="multipart/form-data"
-                  classorderNo="form-horizontal"
+                  className="form-horizontal"
                 >
                   <FormGroup row>
                     <Col md="3">
@@ -499,7 +520,7 @@ class BasicForms extends React.Component {
                       <Input
                         type="date"
                         id="text-input"
-                        orderNo="text-input"
+                        // orderNo="text-input"
                         onChange={(e) => this.handleOrderDate(e)}
                         value={this.state.orderDate}
                         valid={this.state.orderDateValid}
@@ -517,7 +538,7 @@ class BasicForms extends React.Component {
                     <Col xs="12" md="9">
                       <Input
                         type="select"
-                        orderNo="select"
+                        // orderNo="select"
                         id="exampleSelect"
                         onChange={(e) => this.handlePSR(e)}
                         value={this.state.psrName}
@@ -538,7 +559,7 @@ class BasicForms extends React.Component {
                     <Col xs="12" md="9">
                       <Input
                         type="select"
-                        orderNo="select"
+                        // orderNo="select"
                         id="exampleSelect"
                         onChange={(e) => this.handleOutletName(e)}
                         value={this.state.outlet}
@@ -550,73 +571,73 @@ class BasicForms extends React.Component {
                       </Input>
                     </Col>
                   </FormGroup>
-                  <div style={{border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%"}}>
-                  <FormGroup row>
-                    
-                    <Col md="3">
-                      <Label htmlFor="text-input">
-                        Brand Name : <span style={{ color: "red" }}>*</span>
-                      </Label>
-                    </Col>
-                    
-                    <Col xs="12" md="9">
-                      <Input
-                        type="select"
-                        orderNo="select"
-                        id="exampleSelect"
-                        onChange={(e) => this.handleBrand(e)}
-                        value={this.state.brandName}
-                        valid={this.state.brandNameValid}
-                        invalid={this.state.brandNameInvalid}
-                      >
-                        <option value="">Please Select a Brand</option>
-                        {brandNames}
-                      </Input>
-                    </Col>
-                  </FormGroup>
+                  <div style={{ border: "2px solid #11cdef", borderRadius: "10px", marginBottom: "5%", padding: "3%" }}>
+                    <FormGroup row>
 
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">
-                        Size<span style={{ color: "red" }}>*</span>
-                      </Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input
-                        type="number"
-                        id="text-input"
-                        orderNo="text-input"
-                        onChange={(e) => this.handleSize(e)}
-                        value={this.state.size}
-                        valid={this.state.sizeValid}
-                        invalid={this.state.sizeInvalid}
-                        placeholder="Enter Size"
-                      />
-                    </Col>
-                  </FormGroup>
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">
-                        Quantity<span style={{ color: "red" }}>*</span>
-                      </Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input
-                        type="number"
-                        id="text-input"
-                        orderNo="text-input"
-                        onChange={(e) => this.handleQuantity(e)}
-                        value={this.state.quantity}
-                        valid={this.state.quantityValid}
-                        invalid={this.state.quantityInvalid}
-                        placeholder="Enter Quantity"
-                      />
-                    </Col>
-                  </FormGroup>
+                      <Col md="3">
+                        <Label htmlFor="text-input">
+                          Brand Name : <span style={{ color: "red" }}>*</span>
+                        </Label>
+                      </Col>
+
+                      <Col xs="12" md="9">
+                        <Input
+                          type="select"
+                          // orderNo="select"
+                          id="exampleSelect"
+                          onChange={(e) => this.handleBrand(e)}
+                          value={this.state.brandName}
+                          valid={this.state.brandNameValid}
+                          invalid={this.state.brandNameInvalid}
+                        >
+                          <option value="">Please Select a Brand</option>
+                          {brandNames}
+                        </Input>
+                      </Col>
+                    </FormGroup>
+
+                    <FormGroup row>
+                      <Col md="3">
+                        <Label htmlFor="text-input">
+                          Size<span style={{ color: "red" }}>*</span>
+                        </Label>
+                      </Col>
+                      <Col xs="12" md="9">
+                        <Input
+                          type="number"
+                          id="text-input"
+                          // orderNo="text-input"
+                          onChange={(e) => this.handleSize(e)}
+                          value={this.state.size}
+                          valid={this.state.sizeValid}
+                          invalid={this.state.sizeInvalid}
+                          placeholder="Enter Size"
+                        />
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row>
+                      <Col md="3">
+                        <Label htmlFor="text-input">
+                          Quantity<span style={{ color: "red" }}>*</span>
+                        </Label>
+                      </Col>
+                      <Col xs="12" md="9">
+                        <Input
+                          type="number"
+                          id="text-input"
+                          // orderNo="text-input"
+                          onChange={(e) => this.handleQuantity(e)}
+                          value={this.state.quantity}
+                          valid={this.state.quantityValid}
+                          invalid={this.state.quantityInvalid}
+                          placeholder="Enter Quantity"
+                        />
+                      </Col>
+                    </FormGroup>
                   </div>
                   {this.state.addOrders}
                   <Button onClick={this.addOrder}>Add Order</Button>
-                  
+
                 </Form>
               </Col>
             </CardBody>
@@ -648,7 +669,7 @@ class BasicForms extends React.Component {
                   size="sm"
                   color="dark"
                   style={{ margin: "3px" }}
-                  // href="/src/dashboard/Bumanagement#/Bumanagement"
+                // href="/src/dashboard/Bumanagement#/Bumanagement"
                 >
                   Back
                 </Button>

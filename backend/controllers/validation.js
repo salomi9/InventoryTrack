@@ -3,8 +3,8 @@ const { check, validationResult } = require("express-validator/check");
 const salesOrder = {
   "Product Sales Representative": [
     "orderDate",
-    "outletId",
-    "brandId",
+    "outletName",
+    "brandName",
     "size",
     "quantity",
     "psrId",
@@ -13,7 +13,7 @@ const salesOrder = {
 };
 
 const salesOrderValidator = {
-  outletId: check("outletId")
+  outletName: check("outletName")
     .exists()
     .withMessage("outletId is required is Required")
     .bail()
@@ -21,12 +21,12 @@ const salesOrderValidator = {
     .isString()
     .withMessage("It Should be String"),
 
-  brandId: check("brandId")
+  brandName: check("brandName")
     .exists()
     .withMessage("brandId is Required")
-    .bail()
-    .trim()
-    .isString()
+    // .bail()
+    // .trim()
+    // .isString()
     .withMessage("It should be string"),
 
   psrId: check("psrId")
@@ -80,7 +80,7 @@ async function validateInput(req, res, next) {
       req.body != null
     ) {
       for (let value of salesOrder[req.body.userType]) {
-        console.log("keyssss", value);
+        // console.log("keyssss", salesOrderValidator[value]);
         await salesOrderValidator[value].run(req);
       }
       var errors = validationResult(req);
